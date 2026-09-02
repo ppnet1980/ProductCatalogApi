@@ -32,7 +32,6 @@ Dokumentacja powinna zawierać co najmniej:
 2. Wersję API
 3. Historię zmian
 4. Krótki opis celu API
-5. Zakres funkcjonalny wersji
 6. Listę endpointów
 7. Opis każdego endpointu
 8. Parametry wejściowe
@@ -41,7 +40,7 @@ Dokumentacja powinna zawierać co najmniej:
 11. Kody odpowiedzi HTTP
 12. Założenia i ograniczenia
 13. Informację o danych przykładowych
-14. Sekcję "Pliki źródłowe użyte do opisu"
+
 
 ## Wymagania dla opisu endpointów
 
@@ -63,7 +62,6 @@ Model AI:
 - ma opierać się wyłącznie na dostarczonych plikach i diffie
 - nie może wymyślać endpointów ani parametrów
 - ma zachować spójny format Markdown
-- ma jasno oznaczyć brakujące informacje
 - ma uwzględnić, że to jest wersja bazowa bez porównania do wcześniejszej wersji
 
 ## Wymagania dla historii zmian
@@ -83,11 +81,6 @@ Sekcja historii zmian powinna zawierać:
 ## Opis API
 ## Zakres wersji v1
 ## Endpointy
-### GET /products
-### GET /products/{id}
-### POST /products
-## Modele danych
 ## Kody odpowiedzi HTTP
 ## Ograniczenia i założenia
-## Pliki źródłowe użyte do opisu
 ```
