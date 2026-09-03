@@ -44,4 +44,33 @@ public class ProductsController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
     }
+
+/// <summary>
+/// Aktualizuje istniejący produkt (PUT /products/{id})
+/// </summary>
+[HttpPut("{id:int}")]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+public ActionResult<Product> Update(int id, [FromBody] Product updatedProduct)
+{
+    if (updatedProduct is null)
+    {
+        return BadRequest("Dane do aktualizacji nie mogą być puste.");
+    }
+
+    var existingProduct = Products.FirstOrDefault(p => p.Id == id);
+    if (existingProduct is null)
+    {
+        return NotFound($"Nie znaleziono produktu o ID = {id}.");
+    }
+
+    // Aktualizacja pól
+    existingProduct.Name = updatedProduct.Name;
+    existingProduct.Category = updatedProduct.Category;
+    existingProduct.Price = updatedProduct.Price;
+    existingProduct.IsActive = updatedProduct.IsActive;
+
+    return Ok(existingProduct);
+}    
 }
