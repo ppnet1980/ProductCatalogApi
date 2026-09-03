@@ -4,52 +4,34 @@ Wersja API: v1
 
 Krótki opis
 
-ProductCatalogApi to proste API katalogu produktów (wersja v1). Udostępnia listę produktów przechowywanych w pamięci aplikacji i pozwala na pobieranie, dodawanie oraz usuwanie produktów. Projekt pierwotnie przygotowany jako integracja / źródło danych dla n8n.
+ProductCatalogApi to proste API katalogu produktów (wersja v1). Umożliwia listowanie produktów, pobieranie szczegółów produktu, tworzenie oraz usuwanie produktów. Dane przechowywane są w pamięci aplikacji (lista statyczna w kontrolerze).
 
 Base URL
 
-Wszystkie ścieżki są względne względem hosta aplikacji. Kontroler jest zmapowany na ścieżkę:
-
-- /products
+Domyślny URL aplikacji zależy od konfiguracji hosta (np. http://{HOST}). Kontroler jest zmapowany na ścieżkę /products.
 
 Autoryzacja
 
-Brak — kontroler nie wymaga uwierzytelnienia (w kodzie nie występują atrybuty [Authorize]).
+Brak - API nie wymaga autoryzacji. (Zgodnie z implementacją kontrolera w repozytorium nie ma mechanizmu uwierzytelniania ani autoryzacji.)
 
-Zachowanie przechowywania danych
+Zakres funkcji
 
-Dane przechowywane są w statycznej liście w pamięci procesu aplikacji (List<Product>). Oznacza to, że:
-- dane nie są trwałe i po restarcie aplikacji zostaną utracone,
-- API nie wspiera paginacji ani filtrowania (lista jest mała i statyczna).
+ProductCatalogApi v1 pozwala na:
+- listowanie produktów
+- pobieranie pojedynczego produktu po identyfikatorze
+- tworzenie nowego produktu
+- usuwanie produktu
 
-Modele danych
+Modele
 
 Model: Product
-- id (int) — identyfikator produktu,
-- name (string) — nazwa produktu,
-- category (string) — kategoria produktu,
-- price (decimal) — cena produktu,
-- isActive (bool) — flaga aktywności produktu.
+- id (int) — identyfikator produktu
+- name (string) — nazwa produktu
+- category (string) — kategoria produktu
+- price (decimal) — cena produktu
+- isActive (bool) — flaga aktywności produktu
 
-(Uwaga: model nie został odnaleziony jako oddzielny plik Model w repozytorium; powyższe pola są wywnioskowane z użycia w kontrolerze.)
-
-Lista endpointów (skrót)
-
-- GET /products — pobiera listę wszystkich produktów
-- GET /products/{id} — pobiera produkt o podanym id
-- POST /products — tworzy nowy produkt (JSON w body)
-- DELETE /products/{id} — usuwa produkt o podanym id
-
-Szczegółowy opis endpointów
-
-1) Pobierz wszystkie produkty
-- Metoda: GET
-- Ścieżka: /products
-- Parametry: brak
-- Opis: Zwraca aktualną listę produktów przechowywanych w pamięci aplikacji.
-- Odpowiedź: 200 OK — JSON: tablica obiektów Product.
-
-Przykład odpowiedzi (fragment):
+Przykład JSON (lista / przykładowe wpisy z implementacji):
 [
   {
     "id": 1,
@@ -64,34 +46,40 @@ Przykład odpowiedzi (fragment):
     "category": "Furniture",
     "price": 899.00,
     "isActive": true
+  },
+  {
+    "id": 3,
+    "name": "Noise Cancelling Headphones",
+    "category": "Electronics",
+    "price": 1299.00,
+    "isActive": false
   }
 ]
 
-2) Pobierz produkt po identyfikatorze
+Endpoints
+
+1) Pobierz listę produktów
+- Metoda: GET
+- Ścieżka: /products
+- Parametry: brak
+- Odpowiedź: 200 OK - tablica obiektów Product
+
+2) Pobierz produkt po id
 - Metoda: GET
 - Ścieżka: /products/{id}
-- Parametry ścieżki:
-  - id (int) — identyfikator produktu
-- Opis: Zwraca obiekt Product o wskazanym id.
-- Kody odpowiedzi:
-  - 200 OK — zwrócono produkt
-  - 404 Not Found — produkt o podanym id nie istnieje
-
-Przykład odpowiedzi (200):
-{
-  "id": 1,
-  "name": "Laptop Pro 14",
-  "category": "Electronics",
-  "price": 6499.00,
-  "isActive": true
-}
+- Parametry: id (int) — identyfikator produktu
+- Odpowiedź:
+  - 200 OK — zwraca obiekt Product gdy produkt istnieje
+  - 404 Not Found — gdy produkt o podanym id nie istnieje
 
 3) Utwórz nowy produkt
 - Metoda: POST
 - Ścieżka: /products
-- Body: JSON — obiekt Product (bez pola id; id jest nadawane po stronie serwera)
+- Body: JSON — obiekt Product (bez lub z id; serwer ustawi id automatycznie)
+- Odpowiedź:
+  - 201 Created — lokalizacja nagłówka Location wskazuje /products/{id}, odpowiedź zawiera utworzony obiekt Product
 
-Przykład body (request):
+Przykład żądania (POST):
 {
   "name": "Nowy Produkt",
   "category": "Kategoria",
@@ -99,82 +87,46 @@ Przykład body (request):
   "isActive": true
 }
 
-- Opis działania: Serwer tworzy nowy obiekt Product. Id jest generowane jako (max existing id) + 1 lub 1 gdy lista jest pusta. Nowy produkt jest dodawany do listy w pamięci.
-- Kody odpowiedzi:
-  - 201 Created — utworzono produkt; w nagłówku Location wskazuje na GET /products/{id}, w body znajduje się utworzony obiekt.
-
-Przykład odpowiedzi (201):
-Status: 201 Created
-Header: Location: /products/4
-Body:
-{
-  "id": 4,
-  "name": "Nowy Produkt",
-  "category": "Kategoria",
-  "price": 123.45,
-  "isActive": true
-}
-
-4) Usuń produkt
+4) Usuń produkt po id
 - Metoda: DELETE
 - Ścieżka: /products/{id}
-- Parametry ścieżki:
-  - id (int) — identyfikator produktu do usunięcia
-- Opis: Jeśli produkt istnieje — usuwa go z listy i zwraca 204 No Content. Jeśli nie istnieje — zwraca 404 Not Found.
-- Kody odpowiedzi:
-  - 204 No Content — produkt usunięty
-  - 404 Not Found — brak produktu o podanym id
+- Parametry: id (int)
+- Odpowiedź:
+  - 200 OK — zwraca usunięty obiekt Product gdy usunięcie powiodło się
+  - 404 Not Found — gdy produkt nie został znaleziony
 
-Przykłady użycia (curl)
+Przykłady curl
 
 1) Pobierz listę produktów
+curl -sS -X GET "http://{HOST}/products"
 
-curl -sS -X GET "http://{HOST}/products" 
-
-2) Pobierz produkt o id=1
-
+2) Pobierz produkt po id=1
 curl -sS -X GET "http://{HOST}/products/1"
 
 3) Utwórz nowy produkt
-
 curl -sS -X POST "http://{HOST}/products" -H "Content-Type: application/json" -d '{"name":"Nowy Produkt","category":"Kategoria","price":123.45,"isActive":true}'
 
 4) Usuń produkt o id=4
-
 curl -sS -X DELETE "http://{HOST}/products/4"
 
 Uwagi implementacyjne i ograniczenia
 
-- API jest prostym przykładem i przechowuje dane tylko w pamięci procesu (statyczna lista). Nie zaleca się używania tej implementacji w produkcji bez dodania trwałego magazynu.
-- Brak walidacji wejściowej i ograniczonego sprawdzania błędów. Możliwe rozszerzenia:
-  - walidacja modelu (DataAnnotations),
-  - obsługa błędów i ujednolicone odpowiedzi błędów,
-  - paginacja, sortowanie i filtrowanie listy produktów,
-  - integracja z bazą danych.
-
-Schemat JSON modelu (opis)
-
-Product (przykładowy schemat):
-- id: integer (np. 1)
-- name: string (np. "Laptop Pro 14")
-- category: string (np. "Electronics")
-- price: number (decimal) (np. 6499.00)
-- isActive: boolean (true / false)
-
-Kody odpowiedzi — podsumowanie
-
-- 200 OK — operacja zakończona sukcesem (GET)
-- 201 Created — zasób utworzony (POST)
-- 204 No Content — zasób usunięty (DELETE)
-- 404 Not Found — zasób nie istnieje
-
-Kontakt / repozytorium
-
-Repozytorium: https://github.com/ppnet1980/ProductCatalogApi
-Autor / właściciel repozytorium: ppnet1980
+- Dane są przechowywane w pamięci (statyczna lista w ProductsController). Nie ma trwałego magazynu danych — restart aplikacji przywraca listę do wartości zdefiniowanych w kodzie.
+- Brak autoryzacji/autentykacji i ograniczeń dostępu.
+- Id produktu jest generowane po stronie serwera przy tworzeniu (kolejne id = max(id) + 1 lub 1 gdy lista pusta).
+- Przykładowe dane początkowe (z kodu): trzy produkty (id 1,2,3) — patrz sekcja "Modele".
 
 Historia zmian
 
-- 2026-09-03 — v1 — Dodanie dokumentacji początkowej na podstawie kodu źródłowego (ProductsController).
-- 2026-09-03 — v1.1 — Uzupełnienie dokumentacji zgodnie z wymaganiami: dodanie przykładów curl, opis schematu JSON oraz sekcji "Uwagi implementacyjne i ograniczenia".
+- 2026-09-03 — Uaktualniono dokumentację zgodnie z aktualnym kodem repozytorium:
+  - Potwierdzono dostępne endpointy i odpowiednie kody odpowiedzi (GET list, GET by id, POST tworzenie z 201 Created, DELETE zwracające usunięty obiekt lub 404).
+  - Dodano sekcję "Uwagi implementacyjne i ograniczenia" opisującą przechowywanie danych w pamięci oraz brak autoryzacji.
+  - Zaktualizowano przykłady żądań i przykładowe dane zgodnie z implementacją w kontrolerze.
 
+Źródła
+
+Kod źródłowy kontrolera: Controllers/ProductsController.cs
+Model danych: Models/Product.cs
+Dokument wymagającego formatu: Documentation/DocumentationRequirements.md
+
+Repozytorium: https://github.com/ppnet1980/ProductCatalogApi
