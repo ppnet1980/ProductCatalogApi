@@ -11,7 +11,7 @@ public class ProductsController : ControllerBase
     [
         new Product { Id = 1, Name = "Laptop Pro 14", Category = "Electronics", Price = 6499.00m, IsActive = true },
         new Product { Id = 2, Name = "Office Chair Comfort", Category = "Furniture", Price = 899.00m, IsActive = true },
-        new Product { Id = 3, Name = "Noise Canceling Headphones", Category = "Electronics", Price = 1299.00m, IsActive = false }
+        new Product { Id = 4, Name = "Noise Canceling Headphones", Category = "Electronics", Price = 1299.00m, IsActive = false }
     ];
 
     [HttpGet]
