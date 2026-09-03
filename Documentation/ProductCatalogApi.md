@@ -17,10 +17,10 @@ Lista metod (endpoints)
 
 1) GET /products
 - Opis: Pobiera listę wszystkich produktów.
-- Metoda: HttpGet
+- Atrybut: [HttpGet]
 - Request body: brak
 - Odpowiedź:
-  - 200 OK — lista obiektów Product
+  - 200 OK — lista obiektów Product (w treści JSON)
 - Przykładowa odpowiedź (200):
 
 [
@@ -49,23 +49,20 @@ Lista metod (endpoints)
 
 2) GET /products/{id}
 - Opis: Pobiera produkt o podanym identyfikatorze.
-- Metoda: HttpGet, routing parametryczny {id:int}
+- Atrybut: [HttpGet("{id:int}")]
 - Parametry ścieżki:
   - id (int) — identyfikator produktu
 - Odpowiedzi:
-  - 200 OK — obiekt Product
-  - 404 Not Found — gdy produkt o podanym id nie istnieje (zwracany jest komunikat tekstowy)
-- Przykład odpowiedzi 404 (treść zwracana z kodu):
-
-"Nie znaleziono produktu o ID = {id}."
+  - 200 OK — obiekt Product (JSON)
+  - 404 Not Found — gdy produkt o podanym id nie istnieje (w kodzie kontrolera zwracane jest NotFound() bez dodatkowej treści)
 
 3) POST /products
 - Opis: Tworzy nowy produkt.
-- Metoda: HttpPost
-- Request body: JSON reprezentujący Product (pole id jest ignorowane przy tworzeniu — serwer nada nowe id)
-- Logika tworzenia id: jeżeli lista jest pusta -> id = 1, w przeciwnym wypadku id = max(existing ids) + 1
+- Atrybut: [HttpPost]
+- Request body: JSON reprezentujący Product (pole Id w przesyłanym obiekcie jest ignorowane przy tworzeniu — serwer nada nowe Id)
+- Logika tworzenia Id: jeżeli lista jest pusta -> Id = 1, w przeciwnym wypadku Id = max(existing ids) + 1
 - Odpowiedzi:
-  - 201 Created — nagłówek Location wskazuje na GET /products/{id}, w treści zwracany jest utworzony obiekt
+  - 201 Created — nagłówek Location wskazuje na GET /products/{id}, w treści zwracany jest utworzony obiekt (JSON)
 - Przykładowe żądanie (body):
 
 {
@@ -85,21 +82,6 @@ Lista metod (endpoints)
   "isActive": true
 }
 
-4) PATCH /products/{id}/status
-- Opis: Aktualizuje pole isActive (status aktywności) dla produktu o podanym id.
-- Metoda: HttpPatch
-- Routing: {id:int}/status
-- Request body: prosty JSON/tekst reprezentujący wartość boolean (w kodzie [FromBody] bool isActive)
-- Odpowiedzi:
-  - 200 OK — zwraca zaktualizowany obiekt Product
-  - 404 Not Found — gdy produkt o podanym id nie istnieje (zwracany jest komunikat tekstowy)
-
-Przykład żądania PATCH (body):
-true
-
-Przykład odpowiedzi 404 (treść zwracana z kodu):
-"Nie znaleziono produktu o ID = {id}."
-
 Model danych: Product
 
 public class Product
@@ -114,10 +96,11 @@ public class Product
 Uwagi techniczne i ograniczenia
 
 - Dane przechowywane są wyłącznie w pamięci procesu (static List<Product> Products). Nie ma bazy danych ani trwałego przechowywania w kodzie źródłowym.
-- Przy restarcie aplikacji lista przywracana jest do wartości domyślnych zawartych w kodzie.
+- Przy restarcie aplikacji lista przywracana jest do wartości domyślnych zawartych w kodzie (Products lista jest inicjalizowana w kontrolerze).
 - Brak paginacji, filtrowania lub sortowania — GET /products zwraca całą listę.
-- Brak walidacji pól (np. brak sprawdzenia czy price >= 0) — walidacja nie jest zaimplementowana w kontrolerze.
+- Brak walidacji pól (np. brak sprawdzenia czy Price >= 0) — walidacja nie jest zaimplementowana w kontrolerze.
 - Brak mechanizmów autoryzacji/uwierzytelniania w kodzie.
+- GET /products/{id} zwraca NotFound() bez treści, gdy produkt nie istnieje.
 
 Przykłady użycia (curl)
 
@@ -130,13 +113,14 @@ Przykłady użycia (curl)
 - Utwórz nowy produkt:
   curl -X POST "http://<host>:<port>/products" -H "Content-Type: application/json" -d '{"name":"New","category":"G","price":9.99,"isActive":true}'
 
-- Zaktualizuj status produktu (ustaw isActive = false):
-  curl -X PATCH "http://<host>:<port>/products/2/status" -H "Content-Type: application/json" -d 'false'
-
 Historia zmian
 
 - 2026-09-03 — Utworzono dokumentację na podstawie kodu źródłowego (ProductsController i modele). Pierwsza wersja.
+- 2026-09-03 — Zaktualizowano dokumentację: usunięto opis nieistniejącego endpointu PATCH (synchronizacja z aktualnym kodem źródłowym), doprecyzowano zachowanie odpowiedzi 404 i 201.
 
 Uwagi końcowe
 
-Dokumentacja oparta wyłącznie na źródłach kodu dostępnych w repozytorium. Nie wprowadzano żadnych przypuszczeń odnośnie dodatkowych endpointów, mechanizmów uwierzytelniania ani zewnętrznych zależności. Jeśli chcesz, mogę dopisać przykłady odpowiedzi z pełnymi nagłówkami HTTP lub rozwinąć sekcję błędów/validation po dodaniu odpowiedniego kodu do repozytorium.
+Dokumentacja oparta wyłącznie na źródłach kodu dostępnych w repozytorium. Nie wprowadzono żadnych przypuszczeń odnośnie dodatkowych endpointów, mechanizmów uwierzytelniania ani zewnętrznych zależności. Jeśli chcesz, mogę:
+- dopisać pełne przykłady odpowiedzi HTTP z nagłówkami,
+- rozszerzyć sekcję błędów po dodaniu logiki walidacji,
+- wygenerować specyfikację OpenAPI/Swagger jeśli zostaną dodane atrybuty/komentarze XML w kodzie.
