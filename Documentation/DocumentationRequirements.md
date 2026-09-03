@@ -25,3 +25,9 @@ Model AI:
 - ma zachować spójny format Markdown,
 - NIE MOŻE dodawać sekcji "Braki", "Brakujące elementy" ani żądnych uwag technicznych do generowanego pliku,
 - dokumentacja nie może zawierać poleceń cURL.
+- KATEGORYCZNY ZAKAZ GENEROWANIA NAGŁÓWKÓW I SEKCJI TAKICH JAK:
+   - ## Uruchomienie lokalne / uwagi implementacyjne
+   - ## Braki zgodnie z DocumentationRequirements.md
+   - ## Proponowane następne kroki (zalecenia)
+   - ## Uwagi
+   - ## Ograniczenia
