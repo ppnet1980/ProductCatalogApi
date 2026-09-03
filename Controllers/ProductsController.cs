@@ -43,25 +43,6 @@ public class ProductsController : ControllerBase
         Products.Add(createdProduct);
 
         return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
-    }
-
-/// <summary>
-/// Modyfikuje status aktywności produktu (PATCH /products/{id}/status)
-/// </summary>
-[HttpPatch("{id:int}/status")]
-[ProducesResponseType(StatusCodes.Status200OK)]
-[ProducesResponseType(StatusCodes.Status404NotFound)]
-public IActionResult UpdateStatus(int id, [FromBody] bool isActive)
-{
-    var product = Products.FirstOrDefault(p => p.Id == id);
-    if (product is null)
-    {
-        return NotFound($"Nie znaleziono produktu o ID = {id}.");
-    }
-
-    product.IsActive = isActive;
-
-    return Ok(product);
-}      
+    }  
 
 }
