@@ -59,4 +59,12 @@ public class ProductsController : ControllerBase
 
         return NoContent();
     }    
+
+    [HttpGet("is-active")]
+    public ActionResult<IEnumerable<Product>> GetByActiveState([FromQuery] bool active = true)
+    {
+        var activeProducts = Products.Where(p => p.IsActive == active);
+
+        return Ok(activeProducts);
+    }  
 }
