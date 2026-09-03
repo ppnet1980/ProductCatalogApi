@@ -1,23 +1,12 @@
-# ProductCatalogApi v1 - wymagania dla dokumentacji Markdown
+# Wymagania dla dokumentacji Markdown
 
 ## Cel dokumentu
 
-Ten plik definiuje wymagania dla dokumentacji technicznej API w wersji `v1`, tak aby model AI mógł ją poprawnie wygenerować lub uzupełnić.
-
-## Kontekst wersji v1
-
-Wersja `v1` jest wersją bazową API katalogu produktów.
-
-Obsługiwane endpointy:
-
-- `GET /products`
-- `GET /products/{id}`
-- `POST /products`
+Ten plik definiuje wymagania dla dokumentacji technicznej API.
 
 ## Wejścia wymagane dla AI
 
 Model powinien otrzymać:
-
 - ścieżkę do istniejącego pliku dokumentacji w folderze `Documentation`, jeśli istnieje
 - ścieżkę do tego pliku z wymaganiami
 - listę zmienionych plików źródłowych
@@ -26,18 +15,19 @@ Model powinien otrzymać:
 
 ## Wymagane sekcje w dokumentacji Markdown
 
-Dokumentacja powinna zawierać co najmniej:
+Dokumentacja powinna zawierać dokładnie 8 sekcji:
 
 1. Tytuł dokumentu
 2. Wersję API
 3. Historię zmian
-4. Krótki opis celu API
-6. Listę endpointów
-7. Opis każdego endpointu
-8. Parametry wejściowe
-9. Przykładowe requesty
-10. Przykładowe response'y
-11. Kody odpowiedzi HTTP
+4. Krótki opis API
+6. Listę endpointów w postaci tabeli
+7. Opis każdego endpointu w tej samej tabeli
+8. Szczegóły endpointu już pod tabelą zawierjące
+a) Parametry wejściowe 
+b) Przykładowe requesty
+c) Przykładowe response'y
+d) Kody odpowiedzi HTTP
 
 
 ## Wymagania dla opisu endpointów
@@ -54,10 +44,10 @@ Dla każdego endpointu należy opisać:
 ## Wymagania jakościowe dla AI
 
 Model AI:
-
 - ma opierać się wyłącznie na dostarczonych plikach i diffie
 - nie może wymyślać endpointów ani parametrów
 - ma zachować spójny format Markdown
+- ma zawierać dokładnie 8 sekcji
 
 
 ## Wymagania dla historii zmian
