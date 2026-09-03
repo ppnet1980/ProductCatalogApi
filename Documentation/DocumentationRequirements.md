@@ -38,8 +38,6 @@ Dokumentacja powinna zawierać co najmniej:
 9. Przykładowe requesty
 10. Przykładowe response'y
 11. Kody odpowiedzi HTTP
-12. Założenia i ograniczenia
-13. Informację o danych przykładowych
 
 
 ## Wymagania dla opisu endpointów
@@ -49,11 +47,9 @@ Dla każdego endpointu należy opisać:
 - metodę HTTP
 - ścieżkę
 - cel biznesowy endpointu
-- parametry ścieżki lub query
 - body requestu, jeśli występuje
 - strukturę odpowiedzi
 - możliwe statusy HTTP
-- przypadki błędne
 
 ## Wymagania jakościowe dla AI
 
@@ -62,7 +58,7 @@ Model AI:
 - ma opierać się wyłącznie na dostarczonych plikach i diffie
 - nie może wymyślać endpointów ani parametrów
 - ma zachować spójny format Markdown
-- ma uwzględnić, że to jest wersja bazowa bez porównania do wcześniejszej wersji
+
 
 ## Wymagania dla historii zmian
 
@@ -74,13 +70,11 @@ Sekcja historii zmian powinna zawierać:
 
 ## Sugerowany układ Markdown
 
-```md
-# ProductCatalogApi - dokumentacja API
-
+## Tytuł
 ## Historia zmian
 ## Opis API
 ## Zakres wersji v1
 ## Endpointy
 ## Kody odpowiedzi HTTP
-## Ograniczenia i założenia
-```
+
+
