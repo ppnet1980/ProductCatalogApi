@@ -45,5 +45,10 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
     }
 
+    [HttpDelete")]
+    public IActionResult DeleteAll()
+    {
+        return NoContent();
+    }
 
 }
