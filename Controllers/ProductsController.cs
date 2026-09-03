@@ -45,4 +45,18 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProduct);
     }
 
+    [HttpDelete("{id:int}")]
+    public IActionResult Delete(int id)
+    {
+        var product = Products.FirstOrDefault(p => p.Id == id);
+
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        Products.Remove(product);
+
+        return NoContent();
+    }  
 }
