@@ -2,27 +2,26 @@
 
 Krótki opis
 
-Product Catalog API (kontroler ProductsController) — proste REST API do zarządzania katalogiem produktów. Implementacja na podstawie ASP.NET Core (ApiController). Dane przechowywane są w pamięci (statyczna lista) — przy restarcie aplikacji dane wracają do wartości domyślnych.
+Product Catalog API (kontroler ProductsController) — proste REST API do zarządzania katalogiem produktów.
+Implementacja oparta na podstawowym ASP.NET Core (ApiController). Dane przechowywane są w pamięci aplikacji (statyczna lista `Products`).
 
-Uwagi ogólne
+Ważne informacje
 
 - Repozytorium: ppnet1980/ProductCatalogApi
-- Opis repozytorium: Product Catalog API for n8n
-- Kontroler: ProductsController
-- Ścieżka bazowa kontrolera: /products
-- Brak uwierzytelniania w kodzie źródłowym
-- Storage: w pamięci (statyczna lista Product)
+- Kontroler główny: ProductsController (ścieżka bazowa: /products)
+- Format: JSON
+- Przechowywanie: in-memory (statyczna lista w kontrolerze)
 
 Lista metod (endpoints)
 
 1) GET /products
 - Opis: Pobiera listę wszystkich produktów.
-- Atrybut: [HttpGet]
+- Route: [GET] /products
 - Request body: brak
-- Odpowiedź:
-  - 200 OK — lista obiektów Product (w treści JSON)
-- Przykładowa odpowiedź (200):
-
+- Response:
+  - 200 OK — lista produktów w formacie JSON
+- Przykład odpowiedzi (200 OK):
+```
 [
   {
     "id": 1,
@@ -40,30 +39,52 @@ Lista metod (endpoints)
   },
   {
     "id": 3,
-    "name": "Noise Canceling Headphones",
+    "name": "Noise Cancelling Headphones",
     "category": "Electronics",
     "price": 1299.00,
     "isActive": false
   }
 ]
+```
 
 2) GET /products/{id}
-- Opis: Pobiera produkt o podanym identyfikatorze.
-- Atrybut: [HttpGet("{id:int}")]
+- Opis: Pobiera produkt o podanym ID.
+- Route: [GET] /products/{id}
 - Parametry ścieżki:
   - id (int) — identyfikator produktu
-- Odpowiedzi:
-  - 200 OK — obiekt Product (JSON)
-  - 404 Not Found — gdy produkt o podanym id nie istnieje (w kodzie kontrolera zwracane jest NotFound() bez dodatkowej treści)
+- Response:
+  - 200 OK — zwraca obiekt Product (JSON)
+  - 404 Not Found — gdy produkt o podanym ID nie istnieje
+- Przykład odpowiedzi (200 OK):
+```
+{
+  "id": 1,
+  "name": "Laptop Pro 14",
+  "category": "Electronics",
+  "price": 6499.00,
+  "isActive": true
+}
+```
+- Przykład odpowiedzi (404 Not Found):
+```
+404 Not Found
+"Nie znaleziono produktu o ID = {id}."
+```
 
 3) POST /products
 - Opis: Tworzy nowy produkt.
-- Atrybut: [HttpPost]
-- Request body: JSON reprezentujący Product (pole Id w przesyłanym obiekcie jest ignorowane przy tworzeniu — serwer nada nowe Id)
-- Logika tworzenia Id: jeżeli lista jest pusta -> Id = 1, w przeciwnym wypadku Id = max(existing ids) + 1
-- Odpowiedzi:
-  - 201 Created — nagłówek Location wskazuje na GET /products/{id}, w treści zwracany jest utworzony obiekt (JSON)
-- Przykładowe żądanie (body):
+- Route: [POST] /products
+- Request body: JSON z właściwościami produktu (bez pola Id — zostanie nadane automatycznie)
+  - name (string)
+  - category (string)
+  - price (decimal)
+  - isActive (bool)
+- Response:
+  - 201 Created — zwraca utworzony obiekt oraz nagłówek Location wskazujący GET /products/{id}
+- Przykład request:
+```
+POST /products
+Content-Type: application/json
 
 {
   "name": "New Product",
@@ -71,8 +92,11 @@ Lista metod (endpoints)
   "price": 199.99,
   "isActive": true
 }
-
-- Przykładowa odpowiedź 201 (body):
+```
+- Przykład odpowiedzi (201 Created):
+```
+201 Created
+Location: /products/4
 
 {
   "id": 4,
@@ -81,46 +105,87 @@ Lista metod (endpoints)
   "price": 199.99,
   "isActive": true
 }
+```
 
-Model danych: Product
+4) PATCH /products/{id}/status
+- Opis: Aktualizuje pole isActive (status) produktu o podanym ID.
+- Route: [PATCH] /products/{id}/status
+- Parametry ścieżki:
+  - id (int) — identyfikator produktu
+- Request body: prosty JSON/bool lub surowa wartość logiczna oczekiwana przez model binder (w implementacji metoda przyjmuje [FromBody] bool isActive)
+  - Przykład request body: true
+- Response:
+  - 200 OK — zwraca zaktualizowany produkt
+  - 404 Not Found — gdy produkt o podanym ID nie istnieje
+- Przykład request i odpowiedzi:
+```
+PATCH /products/2/status
+Content-Type: application/json
+
+true
+
+---
+200 OK
+{
+  "id": 2,
+  "name": "Office Chair Comfort",
+  "category": "Furniture",
+  "price": 899.00,
+  "isActive": true
+}
+```
+
+Model danych
+
+Product
+- Id (int) — identyfikator produktu
+- Name (string) — nazwa produktu (domyślnie string.Empty w modelu)
+- Category (string) — kategoria (domyślnie string.Empty)
+- Price (decimal) — cena
+- IsActive (bool) — flaga aktywności
+
+Przykładowa definicja (C#)
 
 public class Product
 {
-  public int Id { get; set; }
-  public string Name { get; set; } = string.Empty;
-  public string Category { get; set; } = string.Empty;
-  public decimal Price { get; set; }
-  public bool IsActive { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public bool IsActive { get; set; }
 }
 
-Uwagi techniczne i ograniczenia
+Uwagi implementacyjne
 
-- Dane przechowywane są wyłącznie w pamięci procesu (static List<Product> Products). Nie ma bazy danych ani trwałego przechowywania w kodzie źródłowym.
-- Przy restarcie aplikacji lista przywracana jest do wartości domyślnych zawartych w kodzie (Products lista jest inicjalizowana w kontrolerze).
-- Brak paginacji, filtrowania lub sortowania — GET /products zwraca całą listę.
-- Brak walidacji pól (np. brak sprawdzenia czy Price >= 0) — walidacja nie jest zaimplementowana w kontrolerze.
-- Brak mechanizmów autoryzacji/uwierzytelniania w kodzie.
-- GET /products/{id} zwraca NotFound() bez treści, gdy produkt nie istnieje.
+- Dane są przechowywane w statycznej liście `Products` w kontrolerze (po restarcie aplikacji dane wracają do wartości początkowych).
+- Tworzenie produktu (POST) ustawia Id jako (max(Id) + 1) lub 1, jeśli lista jest pusta.
+- PATCH /products/{id}/status przyjmuje tylko aktualizację pola `IsActive`.
 
 Przykłady użycia (curl)
 
-- Pobierz wszystkie produkty:
+- GET lista produktów:
   curl -X GET "http://<host>:<port>/products"
 
-- Pobierz produkt o id = 1:
+- GET produkt o id=1:
   curl -X GET "http://<host>:<port>/products/1"
 
-- Utwórz nowy produkt:
+- POST nowy produkt:
   curl -X POST "http://<host>:<port>/products" -H "Content-Type: application/json" -d '{"name":"New","category":"G","price":9.99,"isActive":true}'
+
+- PATCH aktualizacja statusu:
+  curl -X PATCH "http://<host>:<port>/products/2/status" -H "Content-Type: application/json" -d 'false'
 
 Historia zmian
 
-- 2026-09-03 — Utworzono dokumentację na podstawie kodu źródłowego (ProductsController i modele). Pierwsza wersja.
-- 2026-09-03 — Zaktualizowano dokumentację: usunięto opis nieistniejącego endpointu PATCH (synchronizacja z aktualnym kodem źródłowym), doprecyzowano zachowanie odpowiedzi 404 i 201.
+- 2026-09-03 — PR #9 (branch: ppnet1980-patch-8) — zdarzenie: closed. Zaktualizowano dokumentację: ujednolicono opis endpointów i przykładów odpowiedzi zgodnie z kodem w kontrolerze ProductsController.
+- 2026-09-03 — Poprzednie wpisy i pełna historia znajdują się w repozytorium (zachowano główne sekcje dokumentu).
 
-Uwagi końcowe
+Linki i dodatkowe pliki
 
-Dokumentacja oparta wyłącznie na źródłach kodu dostępnych w repozytorium. Nie wprowadzono żadnych przypuszczeń odnośnie dodatkowych endpointów, mechanizmów uwierzytelniania ani zewnętrznych zależności. Jeśli chcesz, mogę:
-- dopisać pełne przykłady odpowiedzi HTTP z nagłówkami,
-- rozszerzyć sekcję błędów po dodaniu logiki walidacji,
-- wygenerować specyfikację OpenAPI/Swagger jeśli zostaną dodane atrybuty/komentarze XML w kodzie.
+- Kod kontrolera: Controllers/ProductsController.cs
+- Model: Models/Product.cs
+- Wymagania dokumentacji: Documentation/DocumentationRequirements.md
+
+---
+
+Jeżeli potrzebujesz rozszerzyć dokumentację (np. dodać szczegółowy opis błędów, schematy JSON/Swagger lub przykłady dla wszystkich kodów statusu), daj znać.
