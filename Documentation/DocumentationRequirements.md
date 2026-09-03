@@ -25,9 +25,12 @@ Dokumentacja ma zawierać dokładnie 8 sekcji:
 7. Opis każdego endpointu w tej samej tabeli
 8. Szczegóły endpointu już pod tabelą zawierające
  
-    a) Parametry wejściowe 
+    a) Parametry wejściowe
+   
     b) Przykładowe requesty
+   
     c) Przykładowe response'y
+   
     d) Kody odpowiedzi HTTP
 
 
