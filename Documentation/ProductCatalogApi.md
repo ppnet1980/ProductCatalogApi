@@ -2,25 +2,24 @@
 
 Wersja API: v1
 
-Krótki opis
+Krótski opis
 
-ProductCatalogApi to proste API katalogu produktów (wersja v1). Umożliwia listowanie produktów, pobieranie szczegółów produktu, tworzenie oraz usuwanie produktów. Dane przechowywane są w pamięci aplikacji (lista statyczna w kontrolerze).
+ProductCatalogApi to proste API katalogu produktów (wersja v1). Umożliwia listowanie produktów, pobieranie pojedynczego produktu oraz tworzenie nowych pozycji. Działania są wykonywane w pamięci (statyczna lista w kontrolerze) — dane nie są zapisywane do bazy.
 
 Base URL
 
-Domyślny URL aplikacji zależy od konfiguracji hosta (np. http://{HOST}). Kontroler jest zmapowany na ścieżkę /products.
+Domyślny URL aplikacji zależy od konfiguracji hosta (np. http://{HOST}). Kontroler udostępnia mapowany na ścieżkę /products.
 
 Autoryzacja
 
-Brak - API nie wymaga autoryzacji. (Zgodnie z implementacją kontrolera w repozytorium nie ma mechanizmu uwierzytelniania ani autoryzacji.)
+Brak — API nie wymaga uwierzytelnienia. (Zgodnie z aktualną implementacją kontrolera w repozytorium.)
 
 Zakres funkcji
 
 ProductCatalogApi v1 pozwala na:
-- listowanie produktów
-- pobieranie pojedynczego produktu po identyfikatorze
-- tworzenie nowego produktu
-- usuwanie produktu
+- listowanie produktów (GET)
+- pobieranie pojedynczego produktu (GET /{id})
+- tworzenie nowego produktu (POST)
 
 Modele
 
@@ -31,7 +30,8 @@ Model: Product
 - price (decimal) — cena produktu
 - isActive (bool) — flaga aktywności produktu
 
-Przykład JSON (lista / przykładowe wpisy z implementacji):
+Przykładowe JSON (lista / przykładowe elementy):
+
 [
   {
     "id": 1,
@@ -56,13 +56,13 @@ Przykład JSON (lista / przykładowe wpisy z implementacji):
   }
 ]
 
-Endpoints
+Endpointy
 
 1) Pobierz listę produktów
 - Metoda: GET
 - Ścieżka: /products
 - Parametry: brak
-- Odpowiedź: 200 OK - tablica obiektów Product
+- Odpowiedź: 200 OK — tablica obiektów Product
 
 2) Pobierz produkt po id
 - Metoda: GET
@@ -75,58 +75,45 @@ Endpoints
 3) Utwórz nowy produkt
 - Metoda: POST
 - Ścieżka: /products
-- Body: JSON — obiekt Product (bez lub z id; serwer ustawi id automatycznie)
+- Body: JSON (Product) — obiekt produktu bez pola id (id jest nadawane automatycznie)
 - Odpowiedź:
-  - 201 Created — lokalizacja nagłówka Location wskazuje /products/{id}, odpowiedź zawiera utworzony obiekt Product
+  - 201 Created — lokalizacja nowo utworzonego zasobu /products/{id}, odpowiedź zawiera utworzony obiekt Product
 
-Przykład żądania (POST):
-{
-  "name": "Nowy Produkt",
-  "category": "Kategoria",
-  "price": 123.45,
-  "isActive": true
-}
+Uwaga — brak endpointu DELETE
 
-4) Usuń produkt po id
-- Metoda: DELETE
-- Ścieżka: /products/{id}
-- Parametry: id (int)
-- Odpowiedź:
-  - 200 OK — zwraca usunięty obiekt Product gdy usunięcie powiodło się
-  - 404 Not Found — gdy produkt nie został znaleziony
+W aktualnej implementacji kontrolera (ProductsController) nie ma zaimplementowanego endpointu HTTP DELETE (np. DELETE /products/{id}). Oznacza to, że API nie obsługuje usuwania produktów. Jeśli chcesz, mogę przygotować propozycję implementacji metody DELETE (fragment kodu i zachowania), jednak taki kod nie zostanie dodany do dokumentacji oficjalnej dopóki nie pojawi się w repozytorium jako część implementacji.
 
-Przykłady curl
+Przykłady cURL
 
 1) Pobierz listę produktów
+
 curl -sS -X GET "http://{HOST}/products"
 
 2) Pobierz produkt po id=1
+
 curl -sS -X GET "http://{HOST}/products/1"
 
 3) Utwórz nowy produkt
+
 curl -sS -X POST "http://{HOST}/products" -H "Content-Type: application/json" -d '{"name":"Nowy Produkt","category":"Kategoria","price":123.45,"isActive":true}'
 
-4) Usuń produkt o id=4
-curl -sS -X DELETE "http://{HOST}/products/4"
+4) (Brak) Usunięcie produktu — DELETE
+
+Brak endpointu DELETE w implementacji. Próba wykonania żądania DELETE na /products/{id} zwróci najprawdopodobniej 404 lub 405 zależnie od konfiguracji hosta i middleware, ponieważ w kontrolerze nie zdefiniowano metody obsługującej usunięcie.
 
 Uwagi implementacyjne i ograniczenia
 
-- Dane są przechowywane w pamięci (statyczna lista w ProductsController). Nie ma trwałego magazynu danych — restart aplikacji przywraca listę do wartości zdefiniowanych w kodzie.
-- Brak autoryzacji/autentykacji i ograniczeń dostępu.
-- Id produktu jest generowane po stronie serwera przy tworzeniu (kolejne id = max(id) + 1 lub 1 gdy lista pusta).
-- Przykładowe dane początkowe (z kodu): trzy produkty (id 1,2,3) — patrz sekcja "Modele".
+- Dane są przechowywane w pamięci w postaci statycznej listy w kontrolerze ProductCatalogApi.V1.Controllers.ProductsController. Po restarcie aplikacji lista wraca do wartości początkowych.
+- Brak walidacji pól w modelu (np. cena >= 0) — aktualnie przyjmowane są dane przesyłane w body bez dodatkowej walidacji.
+- Brak mechanizmu paginacji, filtrowania lub sortowania.
+
+Kod źródłowy (lokacje)
+
+- Kod kontrolera: Controllers/ProductsController.cs
+- Model danych: Models/Product.cs
+- Dokument wymagań: Documentation/DocumentationRequirements.md
 
 Historia zmian
 
-- 2026-09-03 — Uaktualniono dokumentację zgodnie z aktualnym kodem repozytorium:
-  - Potwierdzono dostępne endpointy i odpowiednie kody odpowiedzi (GET list, GET by id, POST tworzenie z 201 Created, DELETE zwracające usunięty obiekt lub 404).
-  - Dodano sekcję "Uwagi implementacyjne i ograniczenia" opisującą przechowywanie danych w pamięci oraz brak autoryzacji.
-  - Zaktualizowano przykłady żądań i przykładowe dane zgodnie z implementacją w kontrolerze.
-
-Źródła
-
-Kod źródłowy kontrolera: Controllers/ProductsController.cs
-Model danych: Models/Product.cs
-Dokument wymagającego formatu: Documentation/DocumentationRequirements.md
-
-Repozytorium: https://github.com/ppnet1980/ProductCatalogApi
+- 2026-09-03 — Aktualizacja: zaznaczono brak endpointu DELETE w dokumentacji; dopisano sekcję Uwaga — brak endpointu DELETE oraz uzupełniono Historia zmian.
+- 2026-09-03 — Wersja początkowa dokumentu (wpis pochodzący z istniejącej dokumentacji).
