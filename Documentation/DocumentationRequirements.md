@@ -15,7 +15,7 @@ Model powinien otrzymać:
 
 ## Wymagane sekcje w dokumentacji Markdown
 
-Dokumentacja powinna zawierać dokładnie 8 sekcji:
+Dokumentacja ma zawierać dokładnie 8 sekcji:
 
 1. Tytuł dokumentu
 2. Wersję API
@@ -23,7 +23,7 @@ Dokumentacja powinna zawierać dokładnie 8 sekcji:
 4. Krótki opis API
 6. Listę endpointów w postaci tabeli
 7. Opis każdego endpointu w tej samej tabeli
-8. Szczegóły endpointu już pod tabelą zawierjące
+8. Szczegóły endpointu już pod tabelą zawierające
     a) Parametry wejściowe 
     b) Przykładowe requesty
     c) Przykładowe response'y
@@ -48,6 +48,7 @@ Model AI:
 - nie może wymyślać endpointów ani parametrów
 - ma zachować spójny format Markdown
 - ma zawierać dokładnie 8 sekcji
+- dokumentacja ma nie zawierać ani curl ani brakujących elementów
 
 
 ## Wymagania dla historii zmian
@@ -58,13 +59,12 @@ Sekcja historii zmian powinna zawierać:
 - autora lub nazwę procesu
 - krótki opis zakresu zmian
 
-## Sugerowany układ Markdown
+## Wymagany układ Markdown
 
 ## Tytuł
 ## Historia zmian
 ## Opis API
-## Zakres wersji v1
 ## Endpointy
-## Kody odpowiedzi HTTP
+
 
 
